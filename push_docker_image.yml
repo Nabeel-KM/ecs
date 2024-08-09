@@ -1,0 +1,21 @@
+---
+- name: Push Docker image to ECR
+  hosts: localhost
+  tasks:
+    - name: Authenticate Docker to AWS ECR
+      shell: >
+        aws ecr get-login-password --region us-east-1 |
+        docker login --username AWS --password-stdin {{ ecr_url }}
+
+    - name: Build Docker image
+      command: docker build -t {{ ecr_image_name }} .
+
+    - name: Tag Docker image
+      command: docker tag {{ ecr_image_name }}:latest {{ ecr_url }}:latest
+
+    - name: Push Docker image to ECR
+      command: docker push {{ ecr_url }}:latest
+
+  vars:
+    ecr_url: ""
+    
